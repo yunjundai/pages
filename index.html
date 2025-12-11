@@ -35,21 +35,16 @@
 
     <script>
         // ============================================
-        // ▼ 設定區：這裡已經幫您填好正確的 ID ▼
+        // ▼ 設定區 ▼
         // ============================================
         const sheetID = '1S5-MuXgfbeUoeP0hc3O4UyBI0PRXV84-5EP9ay7nFmo'; 
         
-        // 預設圖片 (當截圖失敗時顯示)
+        // 預設圖片 (當真的什麼圖都抓不到時顯示)
         const defaultImage = 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=1000&auto=format&fit=crop';
         
-        // 資料來源網址
         const url = `https://opensheet.elk.sh/${sheetID}/1`;
-        
-        // 抓取 HTML 元素
         const cardContainer = document.getElementById('card-container');
         const filterContainer = document.getElementById('filter-container');
-        
-        // 全域變數儲存資料
         let allData = [];
 
         // 1. 開始讀取資料
@@ -59,91 +54,86 @@
                 return res.json();
             })
             .then(data => {
-                // 將資料存入全域變數
                 allData = data;
-
-                // 檢查是否真的有抓到資料
                 if (allData.length === 0) {
                     cardContainer.innerHTML = '<p class="loading">讀取成功，但試算表內沒有資料。</p>';
                     return;
                 }
-
-                // 初始化：產生按鈕 & 顯示全部卡片
                 initFilterButtons();
                 renderCards('all');
             })
             .catch(error => {
                 console.error('錯誤:', error);
-                cardContainer.innerHTML = `
-                    <div class="loading" style="color:red;">
-                        <h3>讀取失敗</h3>
-                        <p>請檢查 Google Sheet 是否已「發布到網路」。</p>
-                        <small>錯誤訊息: ${error.message}</small>
-                    </div>
-                `;
+                cardContainer.innerHTML = `<div class="loading" style="color:red;">讀取失敗，請檢查網路或 Sheet 設定。</div>`;
             });
 
         // 2. 功能：產生分類按鈕
         function initFilterButtons() {
             const categories = new Set();
-            
-            // 找出所有不重複的分類
             allData.forEach(item => {
-                // 確保 category 欄位存在且不為空
                 if (item.category && String(item.category).trim() !== "") {
                     categories.add(String(item.category).trim());
                 }
             });
 
-            // 先產生「全部」按鈕
             let buttonsHTML = `<button class="filter-btn active" onclick="filterData('all', this)">全部</button>`;
-
-            // 產生其他分類按鈕
             categories.forEach(cat => {
                 buttonsHTML += `<button class="filter-btn" onclick="filterData('${cat}', this)">${cat}</button>`;
             });
-
             filterContainer.innerHTML = buttonsHTML;
         }
 
         // 3. 功能：篩選動作
         window.filterData = function(category, btnElement) {
-            // 移除所有按鈕的 active 樣式
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            // 幫當前點擊的按鈕加上 active
             btnElement.classList.add('active');
-
-            // 重新渲染卡片
             renderCards(category);
         }
 
-        // 4. 功能：渲染卡片 HTML
+        // 4. 功能：處理 Google Drive 連結 (關鍵功能!)
+        function convertDriveImageLink(link) {
+            // 檢查是否為 Google Drive 的連結
+            if (link.includes('drive.google.com')) {
+                // 嘗試抓取 ID
+                const idMatch = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if (idMatch && idMatch[1]) {
+                    // 轉換成 "預覽縮圖" 格式 (比 export=view 更快更穩)
+                    return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w800`;
+                }
+            }
+            return link; // 如果不是 Drive 連結，就原樣回傳
+        }
+
+        // 5. 功能：渲染卡片 HTML
         function renderCards(filterCategory) {
-            cardContainer.innerHTML = ''; // 清空畫面
+            cardContainer.innerHTML = ''; 
 
             let filteredData = [];
-
             if (filterCategory === 'all') {
                 filteredData = allData;
             } else {
                 filteredData = allData.filter(item => item.category === filterCategory);
             }
 
-            // 如果該分類沒有資料
             if (filteredData.length === 0) {
                 cardContainer.innerHTML = '<p class="loading">此分類暫無資料</p>';
                 return;
             }
 
             filteredData.forEach(item => {
-                // 防呆：如果沒有標題，跳過
                 if(!item.title) return;
 
-                // 圖片邏輯：優先用 Sheet 指定的，沒有就用截圖
                 let imageUrl;
+                
+                // 邏輯 A：如果有填入 image 欄位
                 if (item.image && String(item.image).trim() !== "") {
-                    imageUrl = item.image;
-                } else {
+                    // ★ 使用新功能：自動轉換 Google Drive 連結
+                    imageUrl = convertDriveImageLink(item.image);
+                } 
+                // 邏輯 B：如果沒填 image，嘗試用 link 自動抓截圖
+                else {
+                    // 注意：如果您的 link 是 Google Drive 資料夾，自動截圖會失敗，會跳回預設圖
+                    // 這種情況建議您手動在 image 欄位貼一張圖
                     const targetUrl = encodeURIComponent(item.link);
                     imageUrl = `https://s0.wordpress.com/mshots/v1/${targetUrl}?w=600&h=450`;
                 }
@@ -163,7 +153,6 @@
                         </div>
                     </div>
                 `;
-                
                 cardContainer.innerHTML += cardHTML;
             });
         }
