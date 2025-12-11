@@ -28,10 +28,12 @@ body {
     line-height: 1.7;
 }
 
+/* 容器寬度設定 */
 .container {
-    max-width: 1200px;
+    width: 90%;          /* 手機版預設寬度 90%，左右留點邊距 */
+    max-width: 1200px;   /* 電腦版最大不超過 1200px */
     margin: 0 auto;
-    padding: 20px;
+    padding: 20px 0;     /* 上下留白，左右由 width 控制 */
 }
 
 /* =========================================
@@ -42,28 +44,34 @@ body {
     background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
     color: var(--white);
     text-align: center;
-    padding: 100px 20px;
-    margin-bottom: 50px;
-    /* 下方做一個圓弧造型 */
-    border-radius: 0 0 50px 50px;
+    
+    /* ▼ 修改這裡：高度減半 (原本是 100px) ▼ */
+    padding: 20px 20px;
+    
+    /* ▼ 修改這裡：下方圓角改小一點 (原本是 50px) ▼ */
+    border-radius: 0 0 30px 30px;
+    
+    /* ▼ 修改這裡：與下方內容的距離縮短 (原本是 50px) ▼ */
+    margin-bottom: 10px;
+    
     box-shadow: 0 10px 30px var(--shadow-color);
 }
-
 .hero-section h1 {
-    font-size: 3em;
+    /* ▼ 修改這裡：標題字稍微縮小 (原本是 3em) ▼ */
+    font-size: 2.2em; 
     font-weight: 700;
-    margin: 0 0 15px 0;
+    margin: 0 0 10px 0;
     letter-spacing: 2px;
     text-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .hero-section p {
-    font-size: 1.2em;
+    font-size: 1.1em;
     font-weight: 300;
     opacity: 0.9;
     letter-spacing: 1px;
+    margin: 0; /* 移除多餘邊距 */
 }
-
 /* =========================================
    4. 分類按鈕區 (配合上一部新增的功能)
    ========================================= */
@@ -114,12 +122,17 @@ body {
 
 .grid-container {
     display: grid;
-    /* RWD 設定：最小寬度 300px，自動填滿 */
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 40px;
+    
+    /* 關鍵修改：
+       minmax(260px, 1fr) 的意思是：
+       卡片最小縮到 260px (適合手機)，最大自動填滿 (1fr)。
+       瀏覽器會自動計算一行能塞幾個 260px，塞不下就自動換行。
+    */
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    
+    gap: 30px; /* 卡片之間的間距 */
     padding: 10px;
 }
-
 /* =========================================
    6. 卡片設計 (特效重點)
    ========================================= */
@@ -245,4 +258,31 @@ footer {
     background-color: var(--white);
     color: #9ca3af;
     font-size: 0.9em;
+}
+
+/* 當螢幕大於 768px (平板直立或更大) */
+@media (min-width: 768px) {
+    .container {
+        width: 95%; /* 平板時讓容器寬一點 */
+    }
+}
+
+/* 當螢幕大於 1024px (電腦) */
+@media (min-width: 1024px) {
+    .container {
+        width: 100%;
+        max-width: 1200px; /* 鎖定最大寬度 */
+    }
+}
+
+/* 當螢幕小於 600px (手機) 時的特別優化 */
+@media (max-width: 600px) {
+    .hero-section h1 {
+        font-size: 2em; /* 手機上標題字改小一點，才不會斷行斷得很醜 */
+    }
+    
+    .filter-btn {
+        padding: 6px 15px; /* 手機上按鈕做小一點，比較好塞 */
+        font-size: 0.9em;
+    }
 }
