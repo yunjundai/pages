@@ -33,13 +33,13 @@
         <p>&copy; 2025 宇君同行 共享前行. Built with GitHub Pages.</p>
     </footer>
 
-    <script>
+<script>
         // ============================================
         // ▼ 設定區 ▼
         // ============================================
         const sheetID = '1S5-MuXgfbeUoeP0hc3O4UyBI0PRXV84-5EP9ay7nFmo'; 
         
-        // 預設圖片 (當真的什麼圖都抓不到時顯示)
+        // 預設圖片
         const defaultImage = 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=1000&auto=format&fit=crop';
         
         const url = `https://opensheet.elk.sh/${sheetID}/1`;
@@ -59,27 +59,39 @@
                     cardContainer.innerHTML = '<p class="loading">讀取成功，但試算表內沒有資料。</p>';
                     return;
                 }
-                initFilterButtons();
-                renderCards('all');
+                initFilterButtons(); // 產生按鈕
+                renderCards('all');  // 預設顯示全部
             })
             .catch(error => {
                 console.error('錯誤:', error);
                 cardContainer.innerHTML = `<div class="loading" style="color:red;">讀取失敗，請檢查網路或 Sheet 設定。</div>`;
             });
 
-        // 2. 功能：產生分類按鈕
+        // 2. 功能：產生分類按鈕 (升級版：支援逗號分隔)
         function initFilterButtons() {
             const categories = new Set();
+            
             allData.forEach(item => {
                 if (item.category && String(item.category).trim() !== "") {
-                    categories.add(String(item.category).trim());
+                    // ★ 這裡改了：用正則表達式同時支援 "英文逗號" 與 "中文逗號" 切割
+                    const tags = String(item.category).split(/[,，]/);
+                    
+                    tags.forEach(tag => {
+                        const cleanTag = tag.trim(); // 去除前後空白
+                        if(cleanTag !== "") {
+                            categories.add(cleanTag);
+                        }
+                    });
                 }
             });
 
+            // 產生按鈕 HTML
             let buttonsHTML = `<button class="filter-btn active" onclick="filterData('all', this)">全部</button>`;
+            
             categories.forEach(cat => {
                 buttonsHTML += `<button class="filter-btn" onclick="filterData('${cat}', this)">${cat}</button>`;
             });
+
             filterContainer.innerHTML = buttonsHTML;
         }
 
@@ -90,29 +102,32 @@
             renderCards(category);
         }
 
-        // 4. 功能：處理 Google Drive 連結 (關鍵功能!)
+        // 4. 功能：處理 Google Drive 連結
         function convertDriveImageLink(link) {
-            // 檢查是否為 Google Drive 的連結
             if (link.includes('drive.google.com')) {
-                // 嘗試抓取 ID
                 const idMatch = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
                 if (idMatch && idMatch[1]) {
-                    // 轉換成 "預覽縮圖" 格式 (比 export=view 更快更穩)
                     return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w800`;
                 }
             }
-            return link; // 如果不是 Drive 連結，就原樣回傳
+            return link;
         }
 
-        // 5. 功能：渲染卡片 HTML
+        // 5. 功能：渲染卡片 HTML (升級版：篩選邏輯更新)
         function renderCards(filterCategory) {
             cardContainer.innerHTML = ''; 
 
             let filteredData = [];
+
             if (filterCategory === 'all') {
                 filteredData = allData;
             } else {
-                filteredData = allData.filter(item => item.category === filterCategory);
+                // ★ 這裡改了：檢查該項目的標籤陣列中，是否 "包含" 目前選中的分類
+                filteredData = allData.filter(item => {
+                    if (!item.category) return false;
+                    const itemTags = String(item.category).split(/[,，]/).map(t => t.trim());
+                    return itemTags.includes(filterCategory);
+                });
             }
 
             if (filteredData.length === 0) {
@@ -124,19 +139,16 @@
                 if(!item.title) return;
 
                 let imageUrl;
-                
-                // 邏輯 A：如果有填入 image 欄位
                 if (item.image && String(item.image).trim() !== "") {
-                    // ★ 使用新功能：自動轉換 Google Drive 連結
                     imageUrl = convertDriveImageLink(item.image);
-                } 
-                // 邏輯 B：如果沒填 image，嘗試用 link 自動抓截圖
-                else {
-                    // 注意：如果您的 link 是 Google Drive 資料夾，自動截圖會失敗，會跳回預設圖
-                    // 這種情況建議您手動在 image 欄位貼一張圖
+                } else {
                     const targetUrl = encodeURIComponent(item.link);
                     imageUrl = `https://s0.wordpress.com/mshots/v1/${targetUrl}?w=600&h=450`;
                 }
+
+                // 把顯示在卡片上的分類文字稍微美化一下 (把逗號換成空格或點點)
+                // 這裡我設定將逗號換成 " · " 看起來比較有質感
+                const displayCategory = item.category ? String(item.category).replace(/[,，]/g, ' · ') : '';
 
                 const cardHTML = `
                     <div class="card">
@@ -145,7 +157,7 @@
                         </div>
                         <div class="card-content">
                             <span style="font-size:0.8em; color:#2563eb; font-weight:bold; margin-bottom:5px; display:block;">
-                                ${item.category || ''}
+                                ${displayCategory}
                             </span>
                             <h3>${item.title}</h3>
                             <p>${item.desc || '暫無描述'}</p>
@@ -159,3 +171,4 @@
     </script>
 </body>
 </html>
+
