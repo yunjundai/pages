@@ -4,109 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>宇君同行 共享前行</title>
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <style>
-        /* 右上角的切換按鈕 */
-        .view-toggle-btn {
-            background: white;
-            border: 2px solid #2563eb;
-            color: #2563eb;
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 0 auto 20px auto;
-            transition: all 0.3s;
-        }
-        .view-toggle-btn:hover {
-            background: #eff6ff;
-        }
-
-        /* ▼▼▼ 列表模式 (List Mode) 核心樣式 ▼▼▼ */
-        
-        /* 1. 強制變成單欄 */
-        .grid-container.list-mode {
-            grid-template-columns: 1fr !important;
-            gap: 15px !important;
-        }
-
-        /* 2. 卡片變成橫向排列 (左邊字，右邊按鈕) */
-        .list-mode .card {
-            flex-direction: row !important;
-            align-items: center !important;
-            padding: 15px 25px !important;
-            text-align: left !important;
-            height: auto !important; /* 解除高度限制 */
-        }
-
-        /* 3. 隱藏圖片區域 */
-        .list-mode .card-img-container {
-            display: none !important; 
-        }
-
-        /* 4. 內容區域排版 */
-        .list-mode .card-content {
-            padding: 0 !important;
-            flex-direction: row !important; /* 橫向排列 */
-            align-items: center !important;
-            justify-content: space-between !important;
-            width: 100% !important;
-        }
-
-        /* 5. 文字區域 (包含分類、標題、描述) */
-        .list-mode .text-group {
-            flex-grow: 1;
-            padding-right: 20px; /* 跟按鈕保持距離 */
-        }
-
-        .list-mode .card h3 {
-            margin: 0 0 5px 0 !important;
-            font-size: 1.2em !important;
-        }
-
-        .list-mode .card p {
-            margin: 0 !important;
-            display: -webkit-box;
-            -webkit-line-clamp: 1; /* 只顯示一行 */
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        /* 6. 按鈕樣式 */
-        .list-mode .card-btn {
-            margin: 0 !important;
-            padding: 8px 20px !important;
-            min-width: 120px; /* 固定按鈕寬度 */
-            white-space: nowrap; /* 文字不換行 */
-        }
-
-        /* 手機版微調 (手機上保持直式比較好看) */
-        @media (max-width: 600px) {
-            .list-mode .card {
-                flex-direction: column !important;
-                align-items: flex-start !important;
-                padding: 20px !important;
-            }
-            .list-mode .card-content {
-                flex-direction: column !important;
-                align-items: flex-start !important;
-                gap: 15px;
-            }
-            .list-mode .text-group {
-                padding-right: 0;
-            }
-            .list-mode .card-btn {
-                width: 100% !important;
-            }
-        }
-    </style>
 </head>
 <body>
 
@@ -119,11 +18,14 @@
 
     <main class="container">
         
-        <div id="filter-container" class="filter-container"></div>
+        <div id="filter-container" class="filter-container">
+            </div>
 
-        <button id="view-toggle" class="view-toggle-btn" onclick="toggleViewMode()">
-            <i class="fas fa-list"></i> 切換為列表模式
-        </button>
+        <div class="view-toggle-container">
+            <button id="view-toggle" class="view-toggle-btn" onclick="toggleViewMode()">
+                <i class="fas fa-list"></i> 切換列表模式
+            </button>
+        </div>
 
         <div class="grid-container" id="card-container">
             <div class="loading">
@@ -138,9 +40,7 @@
     </footer>
 
     <script>
-        // ============================================
-        // ▼ 設定區 ▼
-        // ============================================
+        // 設定區
         const sheetID = '1S5-MuXgfbeUoeP0hc3O4UyBI0PRXV84-5EP9ay7nFmo'; 
         const defaultImage = 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=1000&auto=format&fit=crop';
         
@@ -163,7 +63,7 @@
             })
             .catch(error => {
                 console.error(error);
-                cardContainer.innerHTML = `<div class="loading" style="color:red;">讀取失敗</div>`;
+                cardContainer.innerHTML = `<div class="loading" style="color:red;">讀取失敗，請檢查 Google Sheet 設定</div>`;
             });
 
         // 2. 產生分類按鈕
@@ -198,13 +98,12 @@
             const btn = document.getElementById('view-toggle');
             const container = document.getElementById('card-container');
             
-            // 使用 toggle 方法切換 class
             if (isListMode) {
                 container.classList.add('list-mode');
-                btn.innerHTML = '<i class="fas fa-th-large"></i> 切換為圖片模式';
+                btn.innerHTML = '<i class="fas fa-th-large"></i> 切換圖片模式';
             } else {
                 container.classList.remove('list-mode');
-                btn.innerHTML = '<i class="fas fa-list"></i> 切換為列表模式';
+                btn.innerHTML = '<i class="fas fa-list"></i> 切換列表模式';
             }
         }
 
@@ -239,7 +138,6 @@
 
                 const displayCategory = item.category ? String(item.category).replace(/[,，]/g, ' · ') : '';
 
-                // 注意：這裡加入了 text-group 來幫助列表模式排版
                 const cardHTML = `
                     <div class="card">
                         <div class="card-img-container">
@@ -247,9 +145,7 @@
                         </div>
                         <div class="card-content">
                             <div class="text-group">
-                                <span style="font-size:0.8em; color:#2563eb; font-weight:bold; margin-bottom:5px; display:block;">
-                                    ${displayCategory}
-                                </span>
+                                <span class="category-tag">${displayCategory}</span>
                                 <h3>${item.title}</h3>
                                 <p>${item.desc || '暫無描述'}</p>
                             </div>
