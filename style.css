@@ -286,3 +286,93 @@ footer {
         font-size: 0.9em;
     }
 }
+/* =========================================
+   9. 列表模式與切換按鈕 (新增功能)
+   ========================================= */
+
+/* 右上角的切換按鈕 */
+.view-toggle-btn {
+    background: white;
+    border: 2px solid var(--primary-blue);
+    color: var(--primary-blue);
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 auto 20px auto; /* 置中並與下方保持距離 */
+    transition: all 0.3s;
+}
+
+.view-toggle-btn:hover {
+    background: var(--light-blue-bg);
+}
+
+/* ▼▼▼ 當容器被加上 'list-mode' 這個 class 時的樣式變化 ▼▼▼ */
+
+/* 1. 變成單欄列表 */
+.grid-container.list-mode {
+    grid-template-columns: 1fr !important; /* 強制變一欄 */
+    gap: 15px; /* 間距縮小 */
+}
+
+/* 2. 卡片變橫向排列 */
+.list-mode .card {
+    flex-direction: row; /* 內容左右排列 */
+    align-items: center; /* 垂直置中 */
+    padding: 15px 25px;
+    text-align: left; /* 文字靠左 */
+}
+
+/* 3. 隱藏圖片區域 */
+.list-mode .card-img-container {
+    display: none; 
+}
+
+/* 4. 調整文字區域 */
+.list-mode .card-content {
+    padding: 0;
+    flex-direction: row; /* 標題跟按鈕左右排 */
+    align-items: center;
+    justify-content: space-between; /* 撐開距離 */
+    width: 100%;
+}
+
+.list-mode .card h3 {
+    margin: 0;
+    font-size: 1.2em;
+    min-width: 200px; /* 標題保留最小寬度 */
+}
+
+.list-mode .card p {
+    margin: 0 20px;
+    /* 在列表模式下，如果描述太長就隱藏，保持清爽 (可選) */
+    display: -webkit-box;
+    -webkit-line-clamp: 1; 
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.list-mode .card-btn {
+    margin: 0;
+    padding: 8px 20px;
+    min-width: 100px;
+}
+
+/* 手機版在列表模式下的微調 */
+@media (max-width: 600px) {
+    .list-mode .card {
+        flex-direction: column; /* 手機還是上下排比較好看 */
+        align-items: flex-start;
+    }
+    .list-mode .card-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .list-mode .card-btn {
+        width: 100%;
+    }
+}
