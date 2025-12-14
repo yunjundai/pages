@@ -4,12 +4,12 @@
 :root {
     --primary-blue: #2563eb;       /* 標準藍 */
     --dark-blue: #1e40af;          /* 深藍 */
-    --light-blue-bg: #f8fafc;      /* 極淡藍灰背景 (更有質感) */
+    --light-blue-bg: #f8fafc;      /* 極淡藍灰背景 */
     --white: #ffffff;
     --text-main: #1f2937;          /* 主要文字 */
     --text-sub: #6b7280;           /* 次要文字 */
     --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 10px 15px -3px rgba(37, 99, 235, 0.1); /* 藍色暈光 */
+    --shadow-md: 0 10px 15px -3px rgba(37, 99, 235, 0.15);
     --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -23,29 +23,23 @@ body {
 }
 
 /* =========================================
-   2. 容器與 RWD 響應式設定 (自動適應螢幕)
+   2. 容器與 RWD 設定
    ========================================= */
 .container {
     width: 90%;
-    max-width: 1280px; /* 放寬最大寬度，大螢幕可顯示更多 */
+    max-width: 1280px;
     margin: 0 auto;
     padding: 20px 0;
 }
 
-/* 網格系統：核心自動適應邏輯 */
+/* 預設：圖片模式 (Grid 網格) */
 .grid-container {
     display: grid;
-    /* 關鍵語法：repeat(auto-fit, minmax(280px, 1fr))
-       解釋：卡片最小 280px。
-       - 螢幕寬 1200px -> 自動排 4 張
-       - 螢幕寬 900px  -> 自動排 3 張
-       - 手機寬 400px  -> 自動排 1 張
-       完全不用手動設定。
-    */
+    /* 自動適應：根據螢幕寬度決定一行放幾個 */
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 30px;
     padding: 10px;
-    transition: all 0.5s ease; /* 切換模式時有滑順動畫 */
+    transition: all 0.5s ease;
 }
 
 /* =========================================
@@ -55,7 +49,7 @@ body {
     background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
     color: var(--white);
     text-align: center;
-    padding: 40px 20px; /* 適中高度 */
+    padding: 40px 20px;
     border-radius: 0 0 40px 40px;
     margin-bottom: 40px;
     box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
@@ -75,9 +69,8 @@ body {
 }
 
 /* =========================================
-   4. UI 元件 (按鈕與篩選)
+   4. 按鈕與篩選區
    ========================================= */
-/* 分類按鈕區 */
 .filter-container {
     display: flex;
     justify-content: center;
@@ -109,9 +102,8 @@ body {
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
-/* 檢視模式切換按鈕 */
 .view-toggle-container {
-    text-align: right; /* 按鈕靠右 */
+    text-align: right;
     margin-bottom: 20px;
     padding: 0 10px;
 }
@@ -137,18 +129,18 @@ body {
 }
 
 /* =========================================
-   5. 卡片設計 (圖片模式 - 預設)
+   5. 卡片樣式 (預設直式 - 圖片模式)
    ========================================= */
 .card {
     background: var(--white);
     border-radius: 16px;
     overflow: hidden;
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* 預設：上下排列 */
     box-shadow: var(--shadow-sm);
     border: 1px solid rgba(255, 255, 255, 0.8);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    height: 100%; /* 確保同列高度一致 */
+    height: 100%;
 }
 
 .card:hover {
@@ -156,11 +148,13 @@ body {
     box-shadow: var(--shadow-md);
 }
 
+/* 圖片區塊 */
 .card-img-container {
     width: 100%;
     height: 180px;
     overflow: hidden;
     background-color: #f1f5f9;
+    flex-shrink: 0;
     position: relative;
 }
 
@@ -176,6 +170,7 @@ body {
     transform: scale(1.08);
 }
 
+/* 內容區塊 */
 .card-content {
     padding: 24px;
     flex-grow: 1;
@@ -183,7 +178,6 @@ body {
     flex-direction: column;
 }
 
-/* 分類標籤小字 */
 .category-tag {
     font-size: 0.85rem;
     color: var(--primary-blue);
@@ -227,92 +221,94 @@ body {
 }
 
 /* =========================================
-   6. 列表模式 (List Mode) - 設計感優化
+   6. 列表模式 (List Mode) - 純文字橫式
    ========================================= */
 
-/* 當容器切換到 list-mode 時，強制變單欄 */
+/* 1. 外層變單欄，限制最大寬度讓閱讀更舒服 */
 .grid-container.list-mode {
-    grid-template-columns: 1fr; /* 鎖定一欄 */
-    gap: 15px;
+    grid-template-columns: 1fr;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
-/* 卡片變成橫條 */
+/* 2. 卡片本體設定 */
 .list-mode .card {
-    flex-direction: row; /* 左右排列 */
-    align-items: center;
-    padding: 15px 25px;
-    height: auto; /* 高度自動 */
-    border-radius: 12px;
-}
-
-/* 列表模式隱藏圖片 */
-.list-mode .card-img-container {
-    display: none;
-}
-
-/* 列表模式內容區調整 */
-.list-mode .card-content {
+    flex-direction: row; /* 橫向排列 */
+    align-items: center; /* 垂直置中 */
     padding: 0;
-    flex-direction: row;
+    height: auto;
+    min-height: auto; /* 移除高度限制 */
+}
+
+/* 3. 關鍵修改：隱藏圖片 */
+.list-mode .card-img-container {
+    display: none; 
+}
+
+/* 4. 內容區塊調整 (填滿空間) */
+.list-mode .card-content {
+    padding: 20px 30px; /* 增加左右內距 */
+    text-align: left;
+    display: flex;
+    flex-direction: row; /* 內容左右排 (字在左，按鈕在右) */
     align-items: center;
     justify-content: space-between;
     width: 100%;
 }
 
+/* 文字群組 */
 .list-mode .text-group {
-    flex: 1; /* 佔據大部分空間 */
-    padding-right: 20px;
-    text-align: left;
+    flex: 1;
+    padding-right: 40px; /* 避免文字撞到按鈕 */
 }
 
+.list-mode h3 {
+    margin: 0 0 5px 0;
+    font-size: 1.2rem;
+}
+
+.list-mode p {
+    margin: 0;
+    -webkit-line-clamp: 1; /* 列表模式只顯示 1 行說明 */
+}
+
+/* 列表模式的分類標籤 (變成單行顯示) */
 .list-mode .category-tag {
     display: inline-block;
-    margin-right: 10px;
     margin-bottom: 0;
+    margin-right: 10px;
     background: #eff6ff;
     padding: 2px 8px;
     border-radius: 4px;
 }
 
-.list-mode h3 {
-    display: inline-block;
-    margin: 0;
-    font-size: 1.1rem;
-    vertical-align: middle;
-}
-
-.list-mode p {
-    margin: 5px 0 0 0;
-    font-size: 0.9rem;
-    -webkit-line-clamp: 1; /* 只顯示一行 */
-}
-
+/* 按鈕 */
 .list-mode .card-btn {
-    min-width: 100px;
-    padding: 8px 16px;
-    font-size: 0.9rem;
+    min-width: 120px;
+    padding: 8px 20px;
+    flex-shrink: 0; /* 防止按鈕被壓扁 */
 }
 
 /* =========================================
-   7. 手機版優化
+   7. 手機版 RWD
    ========================================= */
-@media (max-width: 640px) {
-    .hero-section h1 { font-size: 1.8rem; }
+@media (max-width: 768px) {
     .container { width: 95%; }
     
-    /* 手機上即便是列表模式，也保持垂直排列比較好看 */
-    .list-mode .card {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 20px;
-    }
+    /* 手機列表模式：稍微調整，避免按鈕太擠 */
     .list-mode .card-content {
-        flex-direction: column;
+        flex-direction: column; /* 手機上改回上下排 */
         align-items: flex-start;
         gap: 15px;
+        padding: 20px;
     }
-    .list-mode .card-btn {
+    
+    .list-mode .text-group {
+        padding-right: 0;
         width: 100%;
     }
-    .list-mode h3 { display: block; margin-top: 5px; }
+    
+    .list-mode .card-btn {
+        width: 100%; /* 按鈕滿版 */
+    }
 }
