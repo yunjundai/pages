@@ -37,7 +37,7 @@ body {
 }
 
 /* =========================================
-   3. 頂部 Hero 區塊 (設計感核心)
+   3. 頂部 Hero 區塊 (縮小版)
    ========================================= */
 .hero-section {
     /* 藍色漸層背景 */
@@ -45,19 +45,17 @@ body {
     color: var(--white);
     text-align: center;
     
-    /* ▼ 修改這裡：高度減半 (原本是 100px) ▼ */
+    /* 高度縮小 */
     padding: 20px 20px;
     
-    /* ▼ 修改這裡：下方圓角改小一點 (原本是 50px) ▼ */
+    /* 圓角與邊距調整 */
     border-radius: 0 0 30px 30px;
-    
-    /* ▼ 修改這裡：與下方內容的距離縮短 (原本是 50px) ▼ */
-    margin-bottom: 10px;
+    margin-bottom: 30px;
     
     box-shadow: 0 10px 30px var(--shadow-color);
 }
+
 .hero-section h1 {
-    /* ▼ 修改這裡：標題字稍微縮小 (原本是 3em) ▼ */
     font-size: 2.2em; 
     font-weight: 700;
     margin: 0 0 10px 0;
@@ -70,10 +68,11 @@ body {
     font-weight: 300;
     opacity: 0.9;
     letter-spacing: 1px;
-    margin: 0; /* 移除多餘邊距 */
+    margin: 0; 
 }
+
 /* =========================================
-   4. 分類按鈕區 (配合上一部新增的功能)
+   4. 分類按鈕區
    ========================================= */
 .filter-container {
     display: flex;
@@ -122,28 +121,23 @@ body {
 
 .grid-container {
     display: grid;
-    
-    /* 關鍵修改：
-       minmax(260px, 1fr) 的意思是：
-       卡片最小縮到 260px (適合手機)，最大自動填滿 (1fr)。
-       瀏覽器會自動計算一行能塞幾個 260px，塞不下就自動換行。
-    */
+    /* RWD 核心：自動適應寬度 */
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    
     gap: 30px; /* 卡片之間的間距 */
     padding: 10px;
 }
+
 /* =========================================
    6. 卡片設計 (特效重點)
    ========================================= */
 .card {
     background: var(--white);
     border-radius: 20px;
-    overflow: hidden; /* 讓放大的圖片不超出邊框 */
+    overflow: hidden; 
     display: flex;
     flex-direction: column;
     
-    /* 陰影設定：預設是輕微的浮起感 */
+    /* 陰影設定 */
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.5);
     
@@ -151,17 +145,17 @@ body {
     transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
 }
 
-/* ▼ 滑鼠移上去的特效 ▼ */
+/* 滑鼠移上去的特效 */
 .card:hover {
-    transform: translateY(-15px); /* 向上浮起更多 */
-    box-shadow: 0 20px 40px var(--shadow-color); /* 陰影變深且帶藍色 */
+    transform: translateY(-15px);
+    box-shadow: 0 20px 40px var(--shadow-color);
 }
 
 /* 圖片容器 */
 .card-img-container {
     width: 100%;
     height: 200px;
-    overflow: hidden; /* 裁切圖片 */
+    overflow: hidden;
     background-color: #f3f4f6;
     border-bottom: 1px solid #f0f0f0;
 }
@@ -171,208 +165,8 @@ body {
     height: 100%;
     object-fit: cover;
     object-position: top; /* 確保截圖從網頁最上面開始顯示 */
-    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* 圖片放大的動態曲線 */
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* 卡片 Hover 時，圖片放大 1.1 倍 */
-.card:hover .card-img-container img {
-    transform: scale(1.1);
-}
-
-/* 內容區 */
-.card-content {
-    padding: 25px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.card h3 {
-    margin: 5px 0 10px 0;
-    font-size: 1.4em;
-    color: #1f2937;
-    transition: color 0.3s;
-}
-
-/* Hover 時標題變藍色 */
-.card:hover h3 {
-    color: var(--primary-blue);
-}
-
-.card p {
-    font-size: 0.95em;
-    color: #6b7280;
-    margin-bottom: 25px;
-    line-height: 1.6;
-    
-    /* 文字限制 3 行 */
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-/* =========================================
-   7. 卡片按鈕特效 (空心變實心)
-   ========================================= */
-.card-btn {
-    margin-top: auto; /* 推到底部 */
-    text-decoration: none;
-    text-align: center;
-    padding: 12px 0;
-    border-radius: 50px; /* 膠囊狀按鈕 */
-    font-weight: bold;
-    letter-spacing: 1px;
-    
-    /* 預設樣式：藍色邊框，白底藍字 */
-    border: 2px solid var(--primary-blue);
-    color: var(--primary-blue);
-    background: transparent;
-    
-    transition: all 0.3s ease;
-}
-
-.card-btn:hover {
-    /* Hover 樣式：變成藍底白字，並稍微放大 */
-    background: var(--primary-blue);
-    color: var(--white);
-    transform: scale(1.05); /* 按鈕微微變大 */
-    box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
-}
-
-/* =========================================
-   8. 讀取與頁尾
-   ========================================= */
-.loading {
-    grid-column: 1 / -1;
-    text-align: center;
-    color: var(--primary-blue);
-    font-size: 1.2em;
-    padding: 50px;
-}
-
-footer {
-    text-align: center;
-    padding: 50px 20px;
-    margin-top: 80px;
-    background-color: var(--white);
-    color: #9ca3af;
-    font-size: 0.9em;
-}
-
-/* 當螢幕大於 768px (平板直立或更大) */
-@media (min-width: 768px) {
-    .container {
-        width: 95%; /* 平板時讓容器寬一點 */
-    }
-}
-
-/* 當螢幕大於 1024px (電腦) */
-@media (min-width: 1024px) {
-    .container {
-        width: 100%;
-        max-width: 1200px; /* 鎖定最大寬度 */
-    }
-}
-
-/* 當螢幕小於 600px (手機) 時的特別優化 */
-@media (max-width: 600px) {
-    .hero-section h1 {
-        font-size: 2em; /* 手機上標題字改小一點，才不會斷行斷得很醜 */
-    }
-    
-    .filter-btn {
-        padding: 6px 15px; /* 手機上按鈕做小一點，比較好塞 */
-        font-size: 0.9em;
-    }
-}
-/* =========================================
-   9. 列表模式與切換按鈕 (新增功能)
-   ========================================= */
-
-/* 右上角的切換按鈕 */
-.view-toggle-btn {
-    background: white;
-    border: 2px solid var(--primary-blue);
-    color: var(--primary-blue);
-    padding: 8px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 auto 20px auto; /* 置中並與下方保持距離 */
-    transition: all 0.3s;
-}
-
-.view-toggle-btn:hover {
-    background: var(--light-blue-bg);
-}
-
-/* ▼▼▼ 當容器被加上 'list-mode' 這個 class 時的樣式變化 ▼▼▼ */
-
-/* 1. 變成單欄列表 */
-.grid-container.list-mode {
-    grid-template-columns: 1fr !important; /* 強制變一欄 */
-    gap: 15px; /* 間距縮小 */
-}
-
-/* 2. 卡片變橫向排列 */
-.list-mode .card {
-    flex-direction: row; /* 內容左右排列 */
-    align-items: center; /* 垂直置中 */
-    padding: 15px 25px;
-    text-align: left; /* 文字靠左 */
-}
-
-/* 3. 隱藏圖片區域 */
-.list-mode .card-img-container {
-    display: none; 
-}
-
-/* 4. 調整文字區域 */
-.list-mode .card-content {
-    padding: 0;
-    flex-direction: row; /* 標題跟按鈕左右排 */
-    align-items: center;
-    justify-content: space-between; /* 撐開距離 */
-    width: 100%;
-}
-
-.list-mode .card h3 {
-    margin: 0;
-    font-size: 1.2em;
-    min-width: 200px; /* 標題保留最小寬度 */
-}
-
-.list-mode .card p {
-    margin: 0 20px;
-    /* 在列表模式下，如果描述太長就隱藏，保持清爽 (可選) */
-    display: -webkit-box;
-    -webkit-line-clamp: 1; 
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.list-mode .card-btn {
-    margin: 0;
-    padding: 8px 20px;
-    min-width: 100px;
-}
-
-/* 手機版在列表模式下的微調 */
-@media (max-width: 600px) {
-    .list-mode .card {
-        flex-direction: column; /* 手機還是上下排比較好看 */
-        align-items: flex-start;
-    }
-    .list-mode .card-content {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    .list-mode .card-btn {
-        width: 100%;
-    }
-}
+/* 卡片 Hover 時，圖片放大 */
+.card:hover .card-img-container
