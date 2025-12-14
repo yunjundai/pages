@@ -1,98 +1,100 @@
 /* =========================================
-   1. 全域變數設定 (藍白配色系統)
+   1. 全域變數 (藍白質感配色)
    ========================================= */
 :root {
-    /* 主色調：科技藍漸層 */
     --primary-blue: #2563eb;       /* 標準藍 */
-    --dark-blue: #1e40af;          /* 深藍 (標題用) */
-    --light-blue-bg: #eff6ff;      /* 極淡藍 (網頁背景用) */
-    
-    /* 輔助色 */
+    --dark-blue: #1e40af;          /* 深藍 */
+    --light-blue-bg: #f8fafc;      /* 極淡藍灰背景 (更有質感) */
     --white: #ffffff;
-    --text-gray: #4b5563;          /* 內文灰 */
-    --shadow-color: rgba(37, 99, 235, 0.15); /* 帶有藍色調的陰影 */
-    
-    /* 轉場動畫設定 (讓特效看起來順滑) */
-    --transition-speed: 0.4s;
+    --text-main: #1f2937;          /* 主要文字 */
+    --text-sub: #6b7280;           /* 次要文字 */
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 10px 15px -3px rgba(37, 99, 235, 0.1); /* 藍色暈光 */
+    --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* =========================================
-   2. 基礎排版
-   ========================================= */
 body {
     font-family: "Microsoft JhengHei", "Helvetica Neue", sans-serif;
     margin: 0;
     padding: 0;
-    background-color: var(--light-blue-bg); /* 背景改為極淡藍色 */
-    color: var(--text-gray);
-    line-height: 1.7;
-}
-
-/* 容器寬度設定 */
-.container {
-    width: 90%;          /* 手機版預設寬度 90%，左右留點邊距 */
-    max-width: 1200px;   /* 電腦版最大不超過 1200px */
-    margin: 0 auto;
-    padding: 20px 0;     /* 上下留白，左右由 width 控制 */
+    background-color: var(--light-blue-bg);
+    color: var(--text-main);
+    line-height: 1.6;
 }
 
 /* =========================================
-   3. 頂部 Hero 區塊 (縮小版)
+   2. 容器與 RWD 響應式設定 (自動適應螢幕)
+   ========================================= */
+.container {
+    width: 90%;
+    max-width: 1280px; /* 放寬最大寬度，大螢幕可顯示更多 */
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+/* 網格系統：核心自動適應邏輯 */
+.grid-container {
+    display: grid;
+    /* 關鍵語法：repeat(auto-fit, minmax(280px, 1fr))
+       解釋：卡片最小 280px。
+       - 螢幕寬 1200px -> 自動排 4 張
+       - 螢幕寬 900px  -> 自動排 3 張
+       - 手機寬 400px  -> 自動排 1 張
+       完全不用手動設定。
+    */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    padding: 10px;
+    transition: all 0.5s ease; /* 切換模式時有滑順動畫 */
+}
+
+/* =========================================
+   3. 頂部 Hero 區塊
    ========================================= */
 .hero-section {
-    /* 藍色漸層背景 */
     background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
     color: var(--white);
     text-align: center;
-    
-    /* 高度縮小 */
-    padding: 20px 20px;
-    
-    /* 圓角與邊距調整 */
-    border-radius: 0 0 30px 30px;
-    margin-bottom: 30px;
-    
-    box-shadow: 0 10px 30px var(--shadow-color);
+    padding: 40px 20px; /* 適中高度 */
+    border-radius: 0 0 40px 40px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
 }
 
 .hero-section h1 {
-    font-size: 2.2em; 
+    font-size: 2.2rem;
     font-weight: 700;
     margin: 0 0 10px 0;
-    letter-spacing: 2px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    letter-spacing: 1.5px;
 }
 
 .hero-section p {
-    font-size: 1.1em;
-    font-weight: 300;
+    font-size: 1.1rem;
     opacity: 0.9;
-    letter-spacing: 1px;
-    margin: 0; 
+    margin: 0;
 }
 
 /* =========================================
-   4. 分類按鈕區
+   4. UI 元件 (按鈕與篩選)
    ========================================= */
+/* 分類按鈕區 */
 .filter-container {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 50px;
+    gap: 12px;
+    margin-bottom: 30px;
 }
 
 .filter-btn {
     background: transparent;
-    border: 1px solid #bfdbfe; /* 淡藍色邊框 */
+    border: 1px solid #bfdbfe;
     color: var(--primary-blue);
-    padding: 8px 25px;
-    border-radius: 50px; /* 圓潤膠囊狀 */
+    padding: 8px 20px;
+    border-radius: 50px;
     cursor: pointer;
-    font-size: 1rem;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    font-family: inherit;
+    font-weight: 600;
+    transition: var(--transition);
 }
 
 .filter-btn:hover {
@@ -100,73 +102,217 @@ body {
     transform: translateY(-2px);
 }
 
-/* 按鈕被選中時的樣式 (實心藍) */
 .filter-btn.active {
     background-color: var(--primary-blue);
     color: var(--white);
     border-color: var(--primary-blue);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+/* 檢視模式切換按鈕 */
+.view-toggle-container {
+    text-align: right; /* 按鈕靠右 */
+    margin-bottom: 20px;
+    padding: 0 10px;
+}
+
+.view-toggle-btn {
+    background: var(--white);
+    border: 1px solid #e5e7eb;
+    color: var(--text-sub);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+}
+
+.view-toggle-btn:hover {
+    color: var(--primary-blue);
+    border-color: var(--primary-blue);
+    background-color: #eff6ff;
 }
 
 /* =========================================
-   5. 標題與網格
-   ========================================= */
-.section-title {
-    text-align: center;
-    color: var(--dark-blue);
-    font-size: 2em;
-    margin-bottom: 30px;
-    font-weight: bold;
-}
-
-.grid-container {
-    display: grid;
-    /* RWD 核心：自動適應寬度 */
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 30px; /* 卡片之間的間距 */
-    padding: 10px;
-}
-
-/* =========================================
-   6. 卡片設計 (特效重點)
+   5. 卡片設計 (圖片模式 - 預設)
    ========================================= */
 .card {
     background: var(--white);
-    border-radius: 20px;
-    overflow: hidden; 
+    border-radius: 16px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    
-    /* 陰影設定 */
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    
-    /* 動畫設定 */
-    transition: transform var(--transition-speed) ease, box-shadow var(--transition-speed) ease;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%; /* 確保同列高度一致 */
 }
 
-/* 滑鼠移上去的特效 */
 .card:hover {
-    transform: translateY(-15px);
-    box-shadow: 0 20px 40px var(--shadow-color);
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-md);
 }
 
-/* 圖片容器 */
 .card-img-container {
     width: 100%;
-    height: 200px;
+    height: 180px;
     overflow: hidden;
-    background-color: #f3f4f6;
-    border-bottom: 1px solid #f0f0f0;
+    background-color: #f1f5f9;
+    position: relative;
 }
 
 .card-img-container img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: top; /* 確保截圖從網頁最上面開始顯示 */
-    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    object-position: top;
+    transition: transform 0.6s ease;
 }
 
-/* 卡片 Hover 時，圖片放大 */
-.card:hover .card-img-container
+.card:hover .card-img-container img {
+    transform: scale(1.08);
+}
+
+.card-content {
+    padding: 24px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 分類標籤小字 */
+.category-tag {
+    font-size: 0.85rem;
+    color: var(--primary-blue);
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.card h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.25rem;
+    color: var(--text-main);
+    line-height: 1.4;
+}
+
+.card p {
+    font-size: 0.95rem;
+    color: var(--text-sub);
+    margin-bottom: 20px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+.card-btn {
+    text-decoration: none;
+    text-align: center;
+    padding: 10px 0;
+    border-radius: 8px;
+    background-color: #f3f4f6;
+    color: var(--text-main);
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.card-btn:hover {
+    background-color: var(--primary-blue);
+    color: var(--white);
+}
+
+/* =========================================
+   6. 列表模式 (List Mode) - 設計感優化
+   ========================================= */
+
+/* 當容器切換到 list-mode 時，強制變單欄 */
+.grid-container.list-mode {
+    grid-template-columns: 1fr; /* 鎖定一欄 */
+    gap: 15px;
+}
+
+/* 卡片變成橫條 */
+.list-mode .card {
+    flex-direction: row; /* 左右排列 */
+    align-items: center;
+    padding: 15px 25px;
+    height: auto; /* 高度自動 */
+    border-radius: 12px;
+}
+
+/* 列表模式隱藏圖片 */
+.list-mode .card-img-container {
+    display: none;
+}
+
+/* 列表模式內容區調整 */
+.list-mode .card-content {
+    padding: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.list-mode .text-group {
+    flex: 1; /* 佔據大部分空間 */
+    padding-right: 20px;
+    text-align: left;
+}
+
+.list-mode .category-tag {
+    display: inline-block;
+    margin-right: 10px;
+    margin-bottom: 0;
+    background: #eff6ff;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.list-mode h3 {
+    display: inline-block;
+    margin: 0;
+    font-size: 1.1rem;
+    vertical-align: middle;
+}
+
+.list-mode p {
+    margin: 5px 0 0 0;
+    font-size: 0.9rem;
+    -webkit-line-clamp: 1; /* 只顯示一行 */
+}
+
+.list-mode .card-btn {
+    min-width: 100px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+}
+
+/* =========================================
+   7. 手機版優化
+   ========================================= */
+@media (max-width: 640px) {
+    .hero-section h1 { font-size: 1.8rem; }
+    .container { width: 95%; }
+    
+    /* 手機上即便是列表模式，也保持垂直排列比較好看 */
+    .list-mode .card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px;
+    }
+    .list-mode .card-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    .list-mode .card-btn {
+        width: 100%;
+    }
+    .list-mode h3 { display: block; margin-top: 5px; }
+}
