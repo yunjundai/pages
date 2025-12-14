@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>宇君同行 共享前行</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -21,6 +21,10 @@
         <div id="filter-container" class="filter-container">
             </div>
 
+        <button id="view-toggle" class="view-toggle-btn" onclick="toggleViewMode()">
+            <i class="fas fa-list"></i> 切換為列表模式
+        </button>
+
         <div class="grid-container" id="card-container">
             <div class="loading">
                 <i class="fas fa-spinner fa-spin"></i> 資料讀取中...
@@ -33,13 +37,11 @@
         <p>&copy; 2025 宇君同行 共享前行. Built with GitHub Pages.</p>
     </footer>
 
-<script>
+    <script>
         // ============================================
         // ▼ 設定區 ▼
         // ============================================
         const sheetID = '1S5-MuXgfbeUoeP0hc3O4UyBI0PRXV84-5EP9ay7nFmo'; 
-        
-        // 預設圖片
         const defaultImage = 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=1000&auto=format&fit=crop';
         
         const url = `https://opensheet.elk.sh/${sheetID}/1`;
@@ -59,39 +61,31 @@
                     cardContainer.innerHTML = '<p class="loading">讀取成功，但試算表內沒有資料。</p>';
                     return;
                 }
-                initFilterButtons(); // 產生按鈕
-                renderCards('all');  // 預設顯示全部
+                initFilterButtons();
+                renderCards('all');
             })
             .catch(error => {
                 console.error('錯誤:', error);
                 cardContainer.innerHTML = `<div class="loading" style="color:red;">讀取失敗，請檢查網路或 Sheet 設定。</div>`;
             });
 
-        // 2. 功能：產生分類按鈕 (升級版：支援逗號分隔)
+        // 2. 功能：產生分類按鈕 (支援逗號分隔)
         function initFilterButtons() {
             const categories = new Set();
-            
             allData.forEach(item => {
                 if (item.category && String(item.category).trim() !== "") {
-                    // ★ 這裡改了：用正則表達式同時支援 "英文逗號" 與 "中文逗號" 切割
                     const tags = String(item.category).split(/[,，]/);
-                    
                     tags.forEach(tag => {
-                        const cleanTag = tag.trim(); // 去除前後空白
-                        if(cleanTag !== "") {
-                            categories.add(cleanTag);
-                        }
+                        const cleanTag = tag.trim();
+                        if(cleanTag !== "") categories.add(cleanTag);
                     });
                 }
             });
 
-            // 產生按鈕 HTML
             let buttonsHTML = `<button class="filter-btn active" onclick="filterData('all', this)">全部</button>`;
-            
             categories.forEach(cat => {
                 buttonsHTML += `<button class="filter-btn" onclick="filterData('${cat}', this)">${cat}</button>`;
             });
-
             filterContainer.innerHTML = buttonsHTML;
         }
 
@@ -102,7 +96,24 @@
             renderCards(category);
         }
 
-        // 4. 功能：處理 Google Drive 連結
+        // 4. 功能：切換檢視模式 (圖片 vs 列表)
+        let isListMode = false;
+        window.toggleViewMode = function() {
+            isListMode = !isListMode; // 切換狀態
+            const btn = document.getElementById('view-toggle');
+            
+            if (isListMode) {
+                // 開啟列表模式
+                cardContainer.classList.add('list-mode');
+                btn.innerHTML = '<i class="fas fa-th-large"></i> 切換為圖片模式';
+            } else {
+                // 回到圖片模式
+                cardContainer.classList.remove('list-mode');
+                btn.innerHTML = '<i class="fas fa-list"></i> 切換為列表模式';
+            }
+        }
+
+        // 5. 輔助：Google Drive 縮圖轉換
         function convertDriveImageLink(link) {
             if (link.includes('drive.google.com')) {
                 const idMatch = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
@@ -113,16 +124,14 @@
             return link;
         }
 
-        // 5. 功能：渲染卡片 HTML (升級版：篩選邏輯更新)
+        // 6. 功能：渲染卡片 HTML
         function renderCards(filterCategory) {
             cardContainer.innerHTML = ''; 
-
             let filteredData = [];
 
             if (filterCategory === 'all') {
                 filteredData = allData;
             } else {
-                // ★ 這裡改了：檢查該項目的標籤陣列中，是否 "包含" 目前選中的分類
                 filteredData = allData.filter(item => {
                     if (!item.category) return false;
                     const itemTags = String(item.category).split(/[,，]/).map(t => t.trim());
@@ -146,8 +155,7 @@
                     imageUrl = `https://s0.wordpress.com/mshots/v1/${targetUrl}?w=600&h=450`;
                 }
 
-                // 把顯示在卡片上的分類文字稍微美化一下 (把逗號換成空格或點點)
-                // 這裡我設定將逗號換成 " · " 看起來比較有質感
+                // 處理分類文字顯示
                 const displayCategory = item.category ? String(item.category).replace(/[,，]/g, ' · ') : '';
 
                 const cardHTML = `
@@ -156,11 +164,13 @@
                             <img src="${imageUrl}" alt="${item.title}" onerror="this.src='${defaultImage}'">
                         </div>
                         <div class="card-content">
-                            <span style="font-size:0.8em; color:#2563eb; font-weight:bold; margin-bottom:5px; display:block;">
-                                ${displayCategory}
-                            </span>
-                            <h3>${item.title}</h3>
-                            <p>${item.desc || '暫無描述'}</p>
+                            <div class="text-group">
+                                <span style="font-size:0.8em; color:#2563eb; font-weight:bold; margin-bottom:5px; display:block;">
+                                    ${displayCategory}
+                                </span>
+                                <h3>${item.title}</h3>
+                                <p>${item.desc || '暫無描述'}</p>
+                            </div>
                             <a href="${item.link}" target="_blank" class="card-btn">前往使用</a>
                         </div>
                     </div>
@@ -171,4 +181,3 @@
     </script>
 </body>
 </html>
-
