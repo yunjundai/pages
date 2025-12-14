@@ -4,8 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>宇君同行 共享前行</title>
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* 右上角的切換按鈕 */
+        .view-toggle-btn {
+            background: white;
+            border: 2px solid #2563eb;
+            color: #2563eb;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0 auto 20px auto;
+            transition: all 0.3s;
+        }
+        .view-toggle-btn:hover {
+            background: #eff6ff;
+        }
+
+        /* ▼▼▼ 列表模式 (List Mode) 核心樣式 ▼▼▼ */
+        
+        /* 1. 強制變成單欄 */
+        .grid-container.list-mode {
+            grid-template-columns: 1fr !important;
+            gap: 15px !important;
+        }
+
+        /* 2. 卡片變成橫向排列 (左邊字，右邊按鈕) */
+        .list-mode .card {
+            flex-direction: row !important;
+            align-items: center !important;
+            padding: 15px 25px !important;
+            text-align: left !important;
+            height: auto !important; /* 解除高度限制 */
+        }
+
+        /* 3. 隱藏圖片區域 */
+        .list-mode .card-img-container {
+            display: none !important; 
+        }
+
+        /* 4. 內容區域排版 */
+        .list-mode .card-content {
+            padding: 0 !important;
+            flex-direction: row !important; /* 橫向排列 */
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+        }
+
+        /* 5. 文字區域 (包含分類、標題、描述) */
+        .list-mode .text-group {
+            flex-grow: 1;
+            padding-right: 20px; /* 跟按鈕保持距離 */
+        }
+
+        .list-mode .card h3 {
+            margin: 0 0 5px 0 !important;
+            font-size: 1.2em !important;
+        }
+
+        .list-mode .card p {
+            margin: 0 !important;
+            display: -webkit-box;
+            -webkit-line-clamp: 1; /* 只顯示一行 */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        /* 6. 按鈕樣式 */
+        .list-mode .card-btn {
+            margin: 0 !important;
+            padding: 8px 20px !important;
+            min-width: 120px; /* 固定按鈕寬度 */
+            white-space: nowrap; /* 文字不換行 */
+        }
+
+        /* 手機版微調 (手機上保持直式比較好看) */
+        @media (max-width: 600px) {
+            .list-mode .card {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                padding: 20px !important;
+            }
+            .list-mode .card-content {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 15px;
+            }
+            .list-mode .text-group {
+                padding-right: 0;
+            }
+            .list-mode .card-btn {
+                width: 100% !important;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -18,8 +119,7 @@
 
     <main class="container">
         
-        <div id="filter-container" class="filter-container">
-            </div>
+        <div id="filter-container" class="filter-container"></div>
 
         <button id="view-toggle" class="view-toggle-btn" onclick="toggleViewMode()">
             <i class="fas fa-list"></i> 切換為列表模式
@@ -49,35 +149,30 @@
         const filterContainer = document.getElementById('filter-container');
         let allData = [];
 
-        // 1. 開始讀取資料
+        // 1. 讀取資料
         fetch(url)
-            .then(res => {
-                if (!res.ok) throw new Error("網路回應錯誤");
-                return res.json();
-            })
+            .then(res => res.ok ? res.json() : Promise.reject("網路回應錯誤"))
             .then(data => {
                 allData = data;
                 if (allData.length === 0) {
-                    cardContainer.innerHTML = '<p class="loading">讀取成功，但試算表內沒有資料。</p>';
+                    cardContainer.innerHTML = '<p class="loading">無資料</p>';
                     return;
                 }
                 initFilterButtons();
                 renderCards('all');
             })
             .catch(error => {
-                console.error('錯誤:', error);
-                cardContainer.innerHTML = `<div class="loading" style="color:red;">讀取失敗，請檢查網路或 Sheet 設定。</div>`;
+                console.error(error);
+                cardContainer.innerHTML = `<div class="loading" style="color:red;">讀取失敗</div>`;
             });
 
-        // 2. 功能：產生分類按鈕 (支援逗號分隔)
+        // 2. 產生分類按鈕
         function initFilterButtons() {
             const categories = new Set();
             allData.forEach(item => {
                 if (item.category && String(item.category).trim() !== "") {
-                    const tags = String(item.category).split(/[,，]/);
-                    tags.forEach(tag => {
-                        const cleanTag = tag.trim();
-                        if(cleanTag !== "") categories.add(cleanTag);
+                    String(item.category).split(/[,，]/).forEach(tag => {
+                        if(tag.trim()) categories.add(tag.trim());
                     });
                 }
             });
@@ -89,55 +184,46 @@
             filterContainer.innerHTML = buttonsHTML;
         }
 
-        // 3. 功能：篩選動作
+        // 3. 篩選動作
         window.filterData = function(category, btnElement) {
             document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             btnElement.classList.add('active');
             renderCards(category);
         }
 
-        // 4. 功能：切換檢視模式 (圖片 vs 列表)
+        // 4. 切換檢視模式
         let isListMode = false;
         window.toggleViewMode = function() {
-            isListMode = !isListMode; // 切換狀態
+            isListMode = !isListMode;
             const btn = document.getElementById('view-toggle');
+            const container = document.getElementById('card-container');
             
+            // 使用 toggle 方法切換 class
             if (isListMode) {
-                // 開啟列表模式
-                cardContainer.classList.add('list-mode');
+                container.classList.add('list-mode');
                 btn.innerHTML = '<i class="fas fa-th-large"></i> 切換為圖片模式';
             } else {
-                // 回到圖片模式
-                cardContainer.classList.remove('list-mode');
+                container.classList.remove('list-mode');
                 btn.innerHTML = '<i class="fas fa-list"></i> 切換為列表模式';
             }
         }
 
-        // 5. 輔助：Google Drive 縮圖轉換
+        // 5. 圖片轉換
         function convertDriveImageLink(link) {
             if (link.includes('drive.google.com')) {
                 const idMatch = link.match(/\/d\/([a-zA-Z0-9_-]+)/);
-                if (idMatch && idMatch[1]) {
-                    return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w800`;
-                }
+                if (idMatch && idMatch[1]) return `https://drive.google.com/thumbnail?id=${idMatch[1]}&sz=w800`;
             }
             return link;
         }
 
-        // 6. 功能：渲染卡片 HTML
+        // 6. 渲染卡片
         function renderCards(filterCategory) {
             cardContainer.innerHTML = ''; 
-            let filteredData = [];
-
-            if (filterCategory === 'all') {
-                filteredData = allData;
-            } else {
-                filteredData = allData.filter(item => {
-                    if (!item.category) return false;
-                    const itemTags = String(item.category).split(/[,，]/).map(t => t.trim());
-                    return itemTags.includes(filterCategory);
-                });
-            }
+            let filteredData = (filterCategory === 'all') ? allData : allData.filter(item => {
+                if (!item.category) return false;
+                return String(item.category).split(/[,，]/).map(t => t.trim()).includes(filterCategory);
+            });
 
             if (filteredData.length === 0) {
                 cardContainer.innerHTML = '<p class="loading">此分類暫無資料</p>';
@@ -147,17 +233,13 @@
             filteredData.forEach(item => {
                 if(!item.title) return;
 
-                let imageUrl;
-                if (item.image && String(item.image).trim() !== "") {
-                    imageUrl = convertDriveImageLink(item.image);
-                } else {
-                    const targetUrl = encodeURIComponent(item.link);
-                    imageUrl = `https://s0.wordpress.com/mshots/v1/${targetUrl}?w=600&h=450`;
-                }
+                let imageUrl = (item.image && String(item.image).trim() !== "") 
+                    ? convertDriveImageLink(item.image) 
+                    : `https://s0.wordpress.com/mshots/v1/${encodeURIComponent(item.link)}?w=600&h=450`;
 
-                // 處理分類文字顯示
                 const displayCategory = item.category ? String(item.category).replace(/[,，]/g, ' · ') : '';
 
+                // 注意：這裡加入了 text-group 來幫助列表模式排版
                 const cardHTML = `
                     <div class="card">
                         <div class="card-img-container">
